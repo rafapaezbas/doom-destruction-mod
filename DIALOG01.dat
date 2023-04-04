@@ -1,0 +1,38 @@
+namespace = "ZDoom";
+
+conversation {
+	actor = "Revenant";
+	
+	page {
+	
+		name = "Skeletonia";
+		dialog = "ok you more than one coin!!";
+		
+		choice {
+			text = "Stimpack";
+			yesmessage = "Heres you health";
+			giveitem = "Stimpack";
+			closedialog = true;
+			cost {
+				item = "Coin";
+				amount = 200;
+			}
+			displaycost = true;
+			nomessage = "You dont have enough";
+		}
+		
+		choice {
+			text = "Shotgun";
+			yesmessage = "Heres you shotgun";
+			giveitem = "Shotgun";
+			closedialog = true;
+			cost {
+				item = "Coin";
+				amount = 1500;
+			}
+			displaycost = true;
+			nomessage = "You dont have enough";
+		}
+	}
+	
+}

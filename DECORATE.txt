@@ -1,0 +1,15 @@
+actor Moneda : CustomInventory 10492
+{
+  Inventory.PickupMessage "1000 coins!!!"
+  Inventory.PickupSound "misc/p_pkup"
+  +COUNTITEM
+  states
+  {
+  Spawn:
+    COIN A -1
+    stop
+  Pickup:
+    COIN A 0 A_GiveInventory ("Coin", 100)
+    stop
+  }
+}

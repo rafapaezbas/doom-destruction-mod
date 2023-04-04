@@ -1,0 +1,105 @@
+version "4.5.0"
+
+// ZScript docs -> https://zdoom-docs.github.io/staging/Introduction.html
+
+// TODO:
+// Enhance message at the end
+// Exchange coins with weapons and health
+// enhance map
+
+class StaticManager: StaticEventHandler {
+	
+	Manager manager;
+
+	override void PlayerDied(PlayerEvent e) {
+	    manager = Manager(EventHandler.Find("Manager"));
+		players[e.PlayerNumber].mo.A_Print(String.Format("Time: %d \n Points: %d", manager.seconds, manager.points), 60.0);
+	}
+
+}
+
+class Manager: EventHandler {
+
+	Actor player;
+	int tick;
+	int seconds;
+	int skill;
+	int points;
+	int combo;
+	int lastKill;
+	
+	override void WorldLoaded (WorldEvent e) {
+		tick = 0;
+		seconds = 0;
+		points = 0;
+		combo = 0;
+		
+		if(Actor.G_SkillName() == "I'm too young to die.") {
+			skill = 1;
+		}
+		if(Actor.G_SkillName() == "Hey, not too rough.") {
+			skill = 2;
+		}
+		if(Actor.G_SkillName() == "	Hurt me plenty.") {
+			skill = 3;
+		}
+		if(Actor.G_SkillName() == "Ultra-Violence.") {
+			skill = 4;
+		}
+		if(Actor.G_SkillName() == "Nightmare!") {
+			skill = 5;
+		}		
+	}
+		
+	override void WorldThingDied(WorldEvent e) {
+	
+	   int COMBO_INTERVAL = 3;
+	   name thingName =  e.thing.getTag();
+	   
+	   if ((seconds - lastKill)  < COMBO_INTERVAL) {
+		 combo = combo + 1;
+		 console.printf("%d points! (x%d combo)", 100 + (combo * 20), combo + 1);
+		 points = points + 100 + (combo * 20);
+	   } else {
+	     combo = 0; // reset combo
+		 console.printf("100 points!");
+		 points = points + 100;
+	   }
+	   
+	   console.printf("name: %s", thingName);
+	   Actor.S_StartSound("sndt", 0, CHANF_OVERLAP, 1.0, ATTN_NONE);
+	   lastKill = seconds;
+	   
+	   // Spawn a coin with a little randomized position
+	   Vector3 deathPosition = e.thing.pos;
+	   deathPosition.x = deathPosition.x + random(0, 32);
+	   deathPosition.y = deathPosition.y + random(0, 32);
+	   deathPosition.z = deathPosition.z + 32;
+	   Actor.Spawn("Moneda", deathPosition);
+	}
+	
+	override void PlayerSpawned (PlayerEvent e) {
+		 player = players[e.PlayerNumber].mo; // mo stands for "map object"
+	}
+	
+	override void WorldTick () {
+		tick = tick + 1;
+		if (tick % 35 == 0) {
+			seconds = seconds + 1;
+			if (seconds % 2 == 0) {
+			
+				Vector3 enemySpawnPositions[] = {
+					(384,640,0),
+					(832,640,0),
+					(-882,288,0),
+					(-128,1152,0)
+				};
+				
+				Vector3 spawnPos = enemySpawnPositions[random(0, 3)];
+				Actor monster = Actor.Spawn("ShotgunGuy", spawnPos);
+				double angle = monster.AngleTo(player);
+				monster.angle = angle;
+			}
+		}
+	}
+}
